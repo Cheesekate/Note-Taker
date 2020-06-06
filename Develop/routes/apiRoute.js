@@ -1,17 +1,25 @@
 const fs = require("fs");
-module.exports = function (app) {
-    app.get("/api/notes", function (req, res) {
-        fs.readFile("etc/password", (err, data) => {
-            if (err) throw err;
-            console.log(data);
-        });
-        res.json(waitListData);
 
-        app.post("api/notes", function (req, res) {
-            false.appendFile(".db/db.json", "data to append", (err) => {
+module.exports = function (app) {
+    app.get("/notes", function (req, res) {
+        fs.readFile("db/db.json", (err, data) => {
+            let currentData = req.body;
+            let parseNote = JSON.parse(data);
+            parseNote.push(currentData);
+            fs.writeFile("db/db.json", JSON.stringify(parseNote, null, 2), err => {
                 if (err) throw err;
-                console.log('Note has appeneded.');
-            });
-        });
-    });
-}
+                res.send(req.body)
+            })
+        })
+    })
+    app.delete("/notes", function (req, res) {
+        fs.readFile("db/db.json", (err, data) => {
+            let parseNote = JSON.parse(data);
+            let savedNote = parseNote.filter(item => item.id != req.params.id);
+            fs.writeFile("db/db.json", JSON.stringify(savedNote, null, 2), err => {
+                if (err) throw err;
+                res.send(req.body)
+            })
+        })
+    })
+};
