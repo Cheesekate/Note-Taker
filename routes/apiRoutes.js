@@ -12,18 +12,15 @@ module.exports = function (app) {
 
     app.post("/api/notes", function (req, res) {
         fs.readFile("db/db.json", (err, data) => {
-            let input = req.body;
+            let input = { ...req.body, id: uuid() };
             let jsonOutput = JSON.parse(data);
-            input.id = uuid();
             jsonOutput.push(input);
-            fs.readFile("db/db.json", JSON.stringify(jsonOutput, null, 2), (err) => {
+            fs.writeFile("db/db.json", JSON.stringify(jsonOutput, null, 2), (err) => {
                 if (err) throw err;
                 res.json(req.body);
             });
         });
     });
-
-
     app.delete("/api/notes/:id", function (req, res) {
         fs.readFile("db/db.json", (err, data) => {
             let input = JSON.parse(data);
